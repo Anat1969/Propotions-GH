@@ -37,3 +37,13 @@ describe('measure', () => {
     if (f) expect(f.fix).toMatch(/ס"מ|מ'/);
   });
 });
+
+import { apply, homography } from '../src/lib/rectify';
+describe('rectify', () => {
+  it('homography maps the 4 corners exactly', () => {
+    const src = [{ x: 0, y: 0 }, { x: 100, y: 0 }, { x: 100, y: 50 }, { x: 0, y: 50 }];
+    const dst = [{ x: 12, y: 8 }, { x: 180, y: 30 }, { x: 170, y: 140 }, { x: 5, y: 120 }];
+    const H = homography(src, dst);
+    src.forEach((p, i) => { const q = apply(H, p); expect(q.x).toBeCloseTo(dst[i].x, 6); expect(q.y).toBeCloseTo(dst[i].y, 6); });
+  });
+});

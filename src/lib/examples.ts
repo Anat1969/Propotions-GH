@@ -62,4 +62,19 @@ const plan: Study = {
   example: true,
 };
 
-export const EXAMPLES: Study[] = [classic, residential, plan];
+// 4. חזית סנטה מריה נובלה של אלברטי, 1470, סכמה על פי ניתוח ויטקובר (1949):
+// החזית חסומה בריבוע, הקומה העליונה ריבוע ברבע השטח, והתחתונה שני ריבועים. הרוחב להדגמה בלבד.
+const novella: Study = {
+  id: 'ex-novella',
+  name: 'סנטה מריה נובלה (סכמה)',
+  kind: 'facade',
+  widthM: 30,
+  aspect: 1,
+  vx: [0.25, 0.75],
+  hy: [0.5],
+  rects: [],
+  precision: 0.001,
+  example: true,
+};
+
+export const EXAMPLES: Study[] = [classic, residential, plan, novella];

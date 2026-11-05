@@ -16,7 +16,7 @@ fs.mkdirSync(out, { recursive: true });
       await p.route('**/appofapp-gh.vercel.app/**', (r) => r.fulfill({ status: 200, contentType: 'application/javascript', body: MENU }));
       await p.route('**/fonts.googleapis.com/**', (r) => r.abort());
       p.on('pageerror', (e) => console.log('ERR', e.message));
-      for (const h of ['', '#/measure?st=ex-residential&s=golden', '#/measure?st=ex-golden&s=golden', '#/measure?st=ex-plan&s=palladio', '#/measure?st=ex-residential&s=modulor', '#/systems', '#/method']) {
+      for (const h of ['', '#/measure?st=ex-residential&s=golden', '#/measure?st=ex-golden&s=golden', '#/measure?st=ex-plan&s=palladio', '#/measure?st=ex-residential&s=modulor', '#/systems', '#/article', '#/method']) {
         await p.goto(BASE + h, { waitUntil: 'networkidle' });
         await p.waitForTimeout(h ? 600 : 3200);
         await p.screenshot({ path: `${out}/${n}-${(h || 'home').replace(/\W+/g, '_')}.png` });

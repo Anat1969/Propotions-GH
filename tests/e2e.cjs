@@ -41,17 +41,39 @@ async function setup(page) {
     ok(await p.locator('ai-menu .logo').isVisible(), 'כפתור הלוגו A&I בסרגל');
     ok(!(await p.locator('header >> text=העתקת קישור').first().isVisible().catch(() => false)), 'אין כפתורי פיתוח חופשיים בסרגל');
     ok(await p.locator('.tone-problem').isVisible() && await p.locator('.tone-solution').isVisible() && await p.locator('.tone-insight').isVisible(), 'בעיה, פתרון ותובנה');
-    ok(await p.locator('.ex-card').count() === 3, '3 כרטיסי דוגמה');
-    ok(await p.locator('.unf-sq').count() === 8, 'מלבן הזהב מתפרק ל-8 ריבועים');
+    ok(await p.locator('.ex-card').count() === 4, '4 כרטיסי דוגמה');
+    // הצעצוע: גרירה אל חתך הזהב נועלת
+    const toy = await p.locator('.toy-svg').boundingBox();
+    const scale = toy.width / 640; // viewBox רוחב 640, מתחיל ב-20-
+    const gx = toy.x + (20 + 600 * 0.618034) * scale;
+    await p.mouse.move(toy.x + toy.width * 0.5, toy.y + toy.height * 0.4);
+    await p.mouse.down();
+    await p.mouse.move(gx, toy.y + toy.height * 0.4, { steps: 8 });
+    await p.mouse.up();
+    ok((await p.locator('.toy-cap').innerText()).includes('ננעל: יחס הזהב'), 'צעצוע: הקו ננעל על יחס הזהב');
+    ok((await p.locator('.toy-svg text').filter({ hasText: '1.618' }).count()) === 1, 'צעצוע: היחס מוצג 1.618');
+    ok(await p.locator('.prec').count() === 3, '3 תקדימים בקו דיו');
+    await p.locator('.prec').last().hover();
+    ok(await p.locator('.prec .reg').count() === 1, 'ריחוף על תקדים חושף קווי ויסות');
+    ok(await p.locator('.backdrop').count() === 1, 'רקע חי בדף הבית');
 
     // ניווט
-    for (const [name, h1part] of [['שיטות', 'חמש שיטות'], ['אמינות', 'מכשיר שאומר'], ['בית', 'הקומפוזיציה נמדדת']]) {
+    for (const [name, h1part] of [['שיטות', 'חמש שיטות'], ['כתבה', 'מיתוס, מדידה'], ['אמינות', 'מכשיר שאומר'], ['בית', 'הקומפוזיציה נמדדת']]) {
       await p.locator('.tabs').getByRole('link', { name }).click();
       await p.waitForFunction((t) => document.querySelector('h1')?.textContent.includes(t), h1part, { timeout: 4000 }).catch(() => {});
       ok((await p.locator('h1').innerText()).includes(h1part), `לשונית ${name}`);
       ok(await p.locator('.tabs [aria-current="page"]').innerText() === name, `לשונית ${name} מסומנת`);
     }
-    ok((await p.locator('.m-card .big').count()) === 0 || true, 'מעבר דפים');
+    await p.goto(BASE + '#/article', { waitUntil: 'networkidle' });
+    ok(await p.locator('.timeline li').count() === 7, 'כתבה: ציר זמן של 7 תחנות');
+    ok(await p.locator('.art-quote .q-tag').innerText() === 'תרגום', 'כתבה: ציטוט עם תרגום ומקור');
+    ok(await p.locator('.art-sources li').count() >= 6, 'כתבה: רשימת מקורות');
+    // תקדים נמדד: אלברטי מסביר בפלאדיו
+    await p.goto(BASE, { waitUntil: 'networkidle' });
+    await p.locator('.prec').last().getByRole('link', { name: 'למדידה' }).click();
+    await p.waitForSelector('[data-testid=index]');
+    await p.waitForTimeout(900);
+    ok((await p.locator('[data-testid=index]').innerText()) === '100%', 'סנטה מריה נובלה: 100% לפי פלאדיו');
     await p.goto(BASE + '#/method', { waitUntil: 'networkidle' });
     ok((await p.locator('.m-card .big').innerText()).startsWith('0.00'), 'כיול: חזית הזהב נמדדת בסטייה 0.00%');
 
@@ -117,9 +139,10 @@ async function setup(page) {
 
     // רוחב אמיתי משנה את שיטות המידה
     await p.locator('.toolbar .chip-tool', { hasText: 'מודולור' }).click();
+    await p.waitForTimeout(900);
     const m1 = await p.locator('[data-testid=index]').innerText();
     await p.locator('#w').fill('21');
-    await p.waitForTimeout(200);
+    await p.waitForTimeout(900);
     const m2 = await p.locator('[data-testid=index]').innerText();
     ok(m1 !== m2, `קנה מידה משנה את המודולור (${m1} ל-${m2})`);
 
@@ -136,8 +159,17 @@ async function setup(page) {
     // העלאת תמונה וזיהוי קווים
     const png = Buffer.from(await p.evaluate(() => { const c = document.createElement('canvas'); c.width = 400; c.height = 300; const g = c.getContext('2d'); g.fillStyle = '#ddd'; g.fillRect(0, 0, 400, 300); g.fillStyle = '#333'; g.fillRect(40, 30, 320, 240); return c.toDataURL('image/png').split(',')[1]; }), 'base64');
     await p.locator('input[type=file]').setInputFiles({ name: 'facade.png', mimeType: 'image/png', buffer: png });
+    await p.waitForSelector('.rectify');
+    ok(await p.locator('.rect-svg .corner').count() === 4, 'יישור פרספקטיבה נפתח עם 4 פינות');
+    const c0 = await p.locator('.rect-svg .corner').first().boundingBox();
+    await p.mouse.move(c0.x + c0.width / 2, c0.y + c0.height / 2);
+    await p.mouse.down();
+    await p.mouse.move(c0.x + c0.width / 2 + 20, c0.y + c0.height / 2 + 12, { steps: 4 });
+    await p.mouse.up();
+    await p.locator('.rectify-bar').getByRole('button', { name: 'יישור' }).click();
     await p.waitForSelector('.drawing image');
-    ok(await p.locator('.drawing image').count() === 1, 'התמונה נטענה לשרטוט');
+    ok((await p.locator('.hintline').innerText()).includes('יושרה'), 'החזית יושרה למלבן');
+    ok(await p.locator('.drawing image').count() === 1, 'התמונה המיושרת נטענה לשרטוט');
     ok(await p.locator('.frame-handles rect').count() === 4, 'ידיות מסגרת');
     await p.getByRole('button', { name: 'זיהוי קווים' }).click();
     await p.waitForFunction(() => document.querySelectorAll('.drawing .divline').length === 3);

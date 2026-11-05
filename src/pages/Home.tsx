@@ -5,9 +5,11 @@ import { bestOf, measureAll } from '../lib/engine';
 import { EXAMPLES } from '../lib/examples';
 import { PHI, SYSTEMS } from '../lib/systems';
 import { href } from '../lib/route';
+import { GoldenToy } from '../components/Visuals';
+import Precedents from '../components/Precedents';
 
 // מלבן זהב שמתפרק לריבועים: כל ריבוע שמורידים משאיר מלבן זהב קטן יותר.
-function GoldenUnfold() {
+export function GoldenUnfold() {
   const W = 610, H = W / PHI;
   const squares: { x: number; y: number; s: number }[] = [];
   let x = 0, y = 0, w = W, h = H;
@@ -61,7 +63,7 @@ export default function Home() {
           <div className="hero-cta">
             <a className="press btn tb-primary" href={href('measure', { st: 'ex-residential', s: 'golden' })}>מדידת דוגמה</a>
             <a className="press btn" href={href('measure', { st: 'ex-golden', s: 'golden' })}>חזית זהובה</a>
-            <a className="press btn" href={href('method')}>איך הוא מודד</a>
+            <a className="press btn" href={href('article')}>הכתבה: מיתוס ומדידה</a>
           </div>
           <div className="tones">
             <div className="tone tone-problem"><h4>הבעיה</h4><Rich as="p">{'"נראה לא מאוזן" היא תחושה. **יחס הזהב** מוזכר בלי שנמדד.'}</Rich></div>
@@ -69,14 +71,19 @@ export default function Home() {
             <div className="tone tone-insight"><h4>התובנה</h4><Rich as="p">{'==שיטה אחת לא מסבירה הכול.== ההשוואה בין השיטות חושפת את ההיגיון של המתכנן.'}</Rich></div>
           </div>
         </div>
-        <figure className="hero-fig rise" style={{ animationDelay: '.15s' }}>
-          <GoldenUnfold />
-          <figcaption><Rich>{'**מלבן זהב:** כל ריבוע שיורד משאיר מלבן זהב קטן יותר, ביחס **1.618**.'}</Rich></figcaption>
-        </figure>
+        <div className="hero-fig rise" style={{ animationDelay: '.15s' }}>
+          <div className="label">נסו בעצמכם</div>
+          <GoldenToy />
+        </div>
       </section>
 
       <section className="home-band">
-        <div className="section-title">שלוש דוגמאות, חמש שיטות: מי מסביר מה</div>
+        <div className="section-title">שלושה תקדימים: מה נכתב עליהם, ומה נמדד</div>
+        <Precedents />
+      </section>
+
+      <section className="home-band">
+        <div className="section-title">ארבע דוגמאות, חמש שיטות: מי מסביר מה</div>
         <div className="ex-grid">
           {scores.map(({ s, all }) => {
             const best = bestOf(all);

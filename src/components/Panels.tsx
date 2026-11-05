@@ -4,6 +4,7 @@ import { BAND_NAME, bandColor, bestOf, worstOf, cm, computedReading, pct, type M
 import { SYSTEM, SYSTEMS, type SystemId } from '../lib/systems';
 import { askReading, type Reading } from '../lib/ai';
 import Rich from './Rich';
+import { CountUp } from './Visuals';
 
 const verdict = (i: number) => (i >= 80 ? 'הרמוני' : i >= 55 ? 'קרוב' : 'סוטה');
 const verdictBand = (i: number) => (i >= 80 ? 'ok' : i >= 55 ? 'near' : 'off') as 'ok' | 'near' | 'off';
@@ -17,7 +18,7 @@ export function IndexPanel({ res, study }: { res: Result; study: Study }) {
     <section className="q" aria-labelledby="q1">
       <div className="q-label" id="q1">1. כמה {study.kind === 'plan' ? 'התוכנית' : 'החזית'} הרמונית?</div>
       <div className="big-row">
-        <bdi className="big num" data-testid="index" style={{ color: bandColor(verdictBand(res.index)) }}>{res.index}%</bdi>
+        <bdi className="big num" data-testid="index" style={{ color: bandColor(verdictBand(res.index)) }}><CountUp value={res.index} suffix="%" /></bdi>
         <div className="big-side">
           <div className="big-verdict">{verdict(res.index)}</div>
           <div className="big-sys">לפי {def.name}</div>
@@ -79,7 +80,7 @@ export function DeviationsPanel({ res, selected, onSelect }: { res: Result; sele
       <div className="q-label" id="q2">2. איפה היא סוטה ובכמה?</div>
       {worst ? (
         <>
-          <Rich as="p" className="insight-line">{`הסטייה הגדולה: **${worst.label}**.`}</Rich>
+          <Rich as="p" className="insight-line">{worst.band === 'ok' ? '**כל הרכיבים** בתחום המדויק.' : `הסטייה הגדולה: **${worst.label}**.`}</Rich>
           <Rich as="p" className="explain">{`${worst.unit === 'ratio' ? `יחס ${worst.value.toFixed(2)}` : cm(worst.value)} מול ${worst.targetName}: סטייה של **${pct(worst.dev)}**.`}</Rich>
         </>
       ) : (

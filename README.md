@@ -24,6 +24,9 @@ npm run build && npm test
 - `src/lib/examples.ts`: שלוש דוגמאות סכמטיות.
 - `src/components/Drawing.tsx`: השרטוט החי, עם קווים, רכיבים, שכבת סטייה וקווי ויסות.
 - `src/components/Panels.tsx`: ארבע השאלות והקריאה בשלוש שכבות.
+- `src/lib/rectify.ts`, `src/components/Rectify.tsx`: יישור פרספקטיבה בארבע פינות.
+- `src/components/Visuals.tsx`, `Precedents.tsx`: רקע חי, צעצוע הזהב, דמות המודולור, תקדימים בקו דיו.
+- `src/pages/Article.tsx`: הכתבה.
 - `supabase/functions/proportion-read`: פונקציית Edge. Gemini החינמי קודם, Claude כגיבוי.
 - `tests/`: בדיקות יחידה (vitest), קצה לקצה (Playwright), `fit.cjs` ו-`overlap.cjs`.
 
