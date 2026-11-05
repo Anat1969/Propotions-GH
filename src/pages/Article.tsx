@@ -67,6 +67,7 @@ export default function Article() {
               ))}
             </ol>
             <Photo src={PHOTOS.rotondaPlan} className="art-plan" width={700} />
+            <Photo src={PHOTOS.modulor} className="art-plan" width={700} />
             <div className="art-mod">
               <ModulorFigure compact />
               <p className="src">המודולור: 1130, 1829 ו-2260 מ"מ. איור בקוד.</p>

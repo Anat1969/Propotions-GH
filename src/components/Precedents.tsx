@@ -102,6 +102,7 @@ const ITEMS = [
     fact: 'הקומה העליונה: ריבוע ברבע השטח. התחתונה: **שני ריבועים**, יחס **1:2**. ==הרמוניה של מספרים שלמים.==',
     src: 'Rudolf Wittkower, Architectural Principles in the Age of Humanism, 1949',
     study: 'ex-novella',
+    photo: PHOTOS.novella as PhotoSrc,
   },
 ];
 
