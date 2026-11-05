@@ -192,6 +192,36 @@ async function setup(page) {
     const inst = await cdp.send('Page.getInstallabilityErrors');
     ok(inst.installabilityErrors.length === 0, 'התקנה: ' + (JSON.stringify(inst.installabilityErrors) || 'אין שגיאות'));
 
+    // צילומים מ-Commons: כשהצילום מגיע (מדומה) הוא מוצג עם קרדיט; כשלא, האיור נשאר
+    {
+      const ph = await b.newPage({ viewport: { width: 1440, height: 900 } });
+      await setup(ph);
+      const png = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAIAAAABCAYAAAD0In+KAAAAEUlEQVR42mP8z8Dwn4GBgQEAFgYCAQyz7TQAAAAASUVORK5CYII=', 'base64');
+      await ph.route('**/commons.wikimedia.org/wiki/Special:FilePath/**', (r) => r.fulfill({ status: 200, contentType: 'image/png', body: png }));
+      await ph.goto(BASE, { waitUntil: 'networkidle' });
+      await ph.locator('.prec').first().scrollIntoViewIfNeeded();
+      await ph.waitForTimeout(600);
+      ok(await ph.locator('.prec-photo .photo.is-ok').count() === 2, 'שני צילומי תקדים נטענו');
+      ok((await ph.locator('.prec-photo .ph-credit').first().getAttribute('href')).startsWith('https://commons.wikimedia.org/wiki/File:'), 'קרדיט מקשר לדף הקובץ');
+      ok((await ph.locator('.prec-photo .ph-credit').first().innerText()).includes('CC BY-SA'), 'קרדיט כולל רישיון');
+      await ph.locator('.prec').first().locator('.prec-switch').getByRole('button', { name: 'קווי ויסות' }).click();
+      await ph.mouse.move(5, 5);
+      ok(await ph.locator('.prec').first().locator('.prec-photo.is-hidden').count() === 1, 'מתג: מהצילום לקווי הוויסות');
+      await ph.goto(BASE + '#/article', { waitUntil: 'networkidle' });
+      for (const el of await ph.locator('.article .photo').all()) { await el.scrollIntoViewIfNeeded(); await ph.waitForTimeout(250); }
+      ok(await ph.locator('.article .photo.is-ok').count() === 2, 'כתבה: צילום הפרתנון ותוכנית פלאדיו');
+      await ph.close();
+      const nf = await b.newPage({ viewport: { width: 1440, height: 900 } });
+      await setup(nf);
+      await nf.route('**/commons.wikimedia.org/**', (r) => r.abort());
+      await nf.goto(BASE, { waitUntil: 'networkidle' });
+      for (const el of await nf.locator('.prec').all()) await el.scrollIntoViewIfNeeded();
+      await nf.waitForFunction(() => document.querySelectorAll('.prec-photo').length === 0, null, { timeout: 5000 }).catch(() => {});
+      const nfp = await nf.locator('.prec-photo').count(), nfs = await nf.locator('.prec-svg').count();
+      ok(nfp === 0 && nfs === 3, `בלי רשת: האיורים נשארים, בלי תמונה שבורה (${nfp}, ${nfs})`);
+      await nf.close();
+    }
+
     // נייד והפחתת תנועה
     for (const vp of [{ width: 390, height: 844 }, { width: 1280, height: 720 }]) {
       const m = await b.newPage({ viewport: vp, reducedMotion: 'reduce' });

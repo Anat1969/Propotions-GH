@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Rich from './Rich';
 import { PHI } from '../lib/systems';
 import { href } from '../lib/route';
+import Photo, { PHOTOS, type PhotoSrc } from './Photo';
 
 const W = 600;
 const P = (d: string, k?: string) => <path key={k ?? d} d={d} pathLength={1} className="ink" />;
@@ -86,12 +87,14 @@ const ITEMS = [
     claim: '**הטענה:** החזית חסומה ב**מלבן זהב**.',
     fact: 'מתמטיקאי בדק את המידות ומצא שהן **לא תומכות** בטענה. ==המיתוס חזק מהמדידה.==',
     src: 'George Markowsky, Misconceptions about the Golden Ratio, The College Mathematics Journal, 1992',
+    photo: PHOTOS.parthenon as PhotoSrc,
   },
   {
     id: 'rotonda', name: 'וילה רוטונדה', latin: 'Villa Almerico Capra, Vicenza', year: 'מ-1567', Draw: Rotonda,
     claim: '**התוכנית:** ריבוע, ובמרכזו **אולם עגול** תחת כיפה.',
     fact: 'ארבע אכסדראות **זהות** לארבעת הכיוונים. ==סימטריה מלאה, יחסים פשוטים.==',
     src: 'Andrea Palladio, I quattro libri dell\'architettura, 1570, ספר שני',
+    photo: PHOTOS.rotonda as PhotoSrc,
   },
   {
     id: 'novella', name: 'סנטה מריה נובלה', latin: 'Santa Maria Novella, Firenze', year: 'חזית: 1470', Draw: Novella,
@@ -104,26 +107,45 @@ const ITEMS = [
 
 export default function Precedents() {
   const [over, setOver] = useState<string | null>(null);
+  const [view, setView] = useState<Record<string, 'photo' | 'ink'>>({});
+  const [failed, setFailed] = useState<Record<string, boolean>>({});
   return (
     <div className="prec-grid">
-      {ITEMS.map(({ id, name, latin, year, Draw, claim, fact, src, study }, i) => (
+      {ITEMS.map(({ id, name, latin, year, Draw, claim, fact, src, study, photo }: (typeof ITEMS)[number] & { photo?: PhotoSrc }, i) => {
+        const hasPhoto = !!photo && !failed[id];
+        const showPhoto = hasPhoto && (view[id] ?? 'photo') === 'photo' && over !== id;
+        return (
         <article key={id} className="prec" onPointerEnter={() => setOver(id)} onPointerLeave={() => setOver(null)} onFocus={() => setOver(id)} tabIndex={0}>
+          <div className="prec-media">
+          {photo && !failed[id] && (
+            <div className={`prec-photo${showPhoto ? '' : ' is-hidden'}`}>
+              <Photo src={photo} width={900} onFail={() => setFailed((f) => ({ ...f, [id]: true }))} />
+            </div>
+          )}
           <svg viewBox={`-10 -40 ${W + 20} 395`} className="prec-svg" role="img" aria-label={`${name}: איור סכמטי בקו`} style={{ direction: 'ltr', ['--d' as string]: `${i * 0.5}s` }}>
             <Draw over={over === id} />
           </svg>
+          {hasPhoto && (
+            <div className="prec-switch" role="group" aria-label="תצוגה">
+              <button className="chip-tool" aria-pressed={showPhoto} onClick={() => setView({ ...view, [id]: 'photo' })}>צילום</button>
+              <button className="chip-tool" aria-pressed={!showPhoto} onClick={() => setView({ ...view, [id]: 'ink' })}>קווי ויסות</button>
+            </div>
+          )}
+          </div>
           <div className="prec-body">
             <h3 className="prec-name">{name} <span className="prec-latin">{latin}</span></h3>
             <div className="prec-year">{year}</div>
             <Rich as="p" className="explain">{claim}</Rich>
             <Rich as="p" className="explain">{fact}</Rich>
-            <p className="src">{src}. איור סכמטי.</p>
+            <p className="src">{src}. {photo && !failed[id] ? 'צילום: Wikimedia Commons. ' : ''}איור סכמטי.</p>
             <div className="prec-act">
-              <span className="mute">{over === id ? 'קווי הוויסות גלויים' : 'רחפו לקווי הוויסות'}</span>
+              <span className="mute">{over === id ? 'קווי הוויסות גלויים' : hasPhoto ? 'רחפו: מהצילום לקווי הוויסות' : 'רחפו לקווי הוויסות'}</span>
               {study && <a className="press btn" href={href('measure', { st: study, s: 'palladio' })}>למדידה</a>}
             </div>
           </div>
         </article>
-      ))}
+        );
+      })}
     </div>
   );
 }

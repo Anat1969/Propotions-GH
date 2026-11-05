@@ -3,6 +3,7 @@ import Rich from '../components/Rich';
 import { ModulorFigure } from '../components/Visuals';
 import { GoldenUnfold } from './Home';
 import { href } from '../lib/route';
+import Photo, { PHOTOS } from '../components/Photo';
 
 const TIMELINE = [
   { y: 'c. 300', era: 'לפנה"ס', who: 'אוקלידס', latin: 'Euclid', what: 'מגדיר חלוקה ב**יחס קיצון וממוצע**.', src: 'Elements, VI, def. 3' },
@@ -36,6 +37,7 @@ export default function Article() {
             </p>
             <Rich as="p">{'הטענה מופיעה בספרי לימוד, בפוסטים ובשקופיות. מעטים מודדים אותה.'}</Rich>
             <Rich as="p">{'מתמטיקאים שבדקו את המידות מצאו שהן **לא תומכות** בטענה: המלבן המפורסם מצויר בחופש, מעל או מתחת לקו הגג.'}</Rich>
+            <Photo src={PHOTOS.parthenon} className="art-photo" width={1200} />
             <Rich as="p">{'אבל השאלה המעניינת איננה אם יש שם זהב.'}</Rich>
             <Rich as="p">{'==השאלה היא איזו שיטה מסבירה את מה שהעין רואה.=='}</Rich>
             <Rich as="p">{'חזית של **אלברטי** נשענת על ריבועים. תוכנית של **פלאדיו** על יחסים של מספרים שלמים. בניין מגורים טיפוסי על מודול של **10 ס"מ**.'}</Rich>
@@ -64,6 +66,7 @@ export default function Article() {
                 </li>
               ))}
             </ol>
+            <Photo src={PHOTOS.rotondaPlan} className="art-plan" width={700} />
             <div className="art-mod">
               <ModulorFigure compact />
               <p className="src">המודולור: 1130, 1829 ו-2260 מ"מ. איור בקוד.</p>
