@@ -324,3 +324,5 @@ a.btn { text-decoration: none; display: inline-block; }
 .art-plan figcaption { position: static; background: none; color: var(--ink-soft); padding: 6px 0 0; }
 .art-plan .ph-credit { color: var(--ink-mute); }
 @media print { .photo img { opacity: 1 !important; } }
+
+.sys-photo { aspect-ratio: 4 / 3; }

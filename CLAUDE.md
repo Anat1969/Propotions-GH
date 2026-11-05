@@ -46,10 +46,12 @@
 | נושא | קובץ ב-Commons | צלם | רישיון | איך אומת |
 |---|---|---|---|---|
 | הפרתנון | The East Facade of the Parthenon on March 22, 2021.jpg | George E. Koronaios | CC BY-SA 2.0 | FlickreviewR 2, לפי מראה של דף הקובץ |
-| וילה רוטונדה | VillaCapra 2007 07 18 3.jpg | Hans A. Rosbach | CC BY-SA | מראה של דף הקובץ ו-World History Encyclopedia |
+| וילה רוטונדה | VillaCapra 2007 07 18 3.jpg | Hans A. Rosbach | CC BY-SA 3.0 | דף הקובץ ב-Commons, בחיפוש מורחב |
+| סנטה מריה נובלה | Florence, Santa Maria Novella, facade.jpg | Armin Kleiner | CC BY-SA 4.0 | דף הקובץ ב-Commons, בחיפוש מורחב |
+| תבליט המודולור, ברלין | Modulor.jpg | Salvora | נחלת הכלל (שחרור עצמי) | דף הקובץ ב-Commons, בחיפוש מורחב |
 | תוכנית הרוטונדה | PalladioRotondaPlan.jpg | Andrea Palladio | נחלת הכלל (1570) | גיל היצירה |
 
-כשהגישה ל-commons.wikimedia.org תיפתח בסביבה, לאמת את שלושתם מול דפי הקבצים עצמם.
+לא נכנסים צילומים של יחידת המגורים במרסיי: יצירות לה קורבוזיה מוגנות בצרפת, ו-Commons לא מאחסן אותם. הפרתנון אומת דרך מראה בלבד, ולאמת מול דף הקובץ כשהגישה תיפתח.
 
 ## ריכוזי ידע שנעשו
 

@@ -6,7 +6,7 @@ export interface PhotoSrc {
   file: string;
   author: string;
   license: string;
-  year: string;
+  year?: string;
   caption: string;
 }
 
@@ -46,7 +46,7 @@ export default function Photo({ src, className, onFail, width }: { src: PhotoSrc
       <figcaption>
         <span className="ph-cap">{src.caption}</span>
         <a className="ph-credit" href={commonsPage(src.file)} target="_blank" rel="noreferrer">
-          {src.author}, {src.year}, {src.license}, Wikimedia Commons
+          {[src.author, src.year, src.license, 'Wikimedia Commons'].filter(Boolean).join(', ')}
         </a>
       </figcaption>
     </figure>
@@ -56,6 +56,8 @@ export default function Photo({ src, className, onFail, width }: { src: PhotoSrc
 /** מקורות שאומתו: שם קובץ, צלם ורישיון. */
 export const PHOTOS = {
   parthenon: { file: 'The East Facade of the Parthenon on March 22, 2021.jpg', author: 'George E. Koronaios', license: 'CC BY-SA 2.0', year: '2021', caption: 'הפרתנון, החזית המזרחית' },
-  rotonda: { file: 'VillaCapra 2007 07 18 3.jpg', author: 'Hans A. Rosbach', license: 'CC BY-SA', year: '2007', caption: 'וילה רוטונדה, ויצ\'נצה' },
+  rotonda: { file: 'VillaCapra 2007 07 18 3.jpg', author: 'Hans A. Rosbach', license: 'CC BY-SA 3.0', year: '2007', caption: 'וילה רוטונדה, ויצ\'נצה' },
+  novella: { file: 'Florence, Santa Maria Novella, facade.jpg', author: 'Armin Kleiner', license: 'CC BY-SA 4.0', year: '2021', caption: 'סנטה מריה נובלה, החזית של אלברטי' },
+  modulor: { file: 'Modulor.jpg', author: 'Salvora', license: 'נחלת הכלל', caption: 'תבליט המודולור, יחידת המגורים בברלין' },
   rotondaPlan: { file: 'PalladioRotondaPlan.jpg', author: 'Andrea Palladio', license: 'נחלת הכלל', year: '1570', caption: 'תוכנית הרוטונדה מתוך ארבעת הספרים' },
 } satisfies Record<string, PhotoSrc>;
