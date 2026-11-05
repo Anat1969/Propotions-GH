@@ -1,6 +1,8 @@
 // מסך המדידה: סרגל כלים קבוע, שרטוט חי במרכז, ותשובות לארבע שאלות סביבו.
 import { useEffect, useMemo, useRef, useState } from 'react';
 import Drawing, { type Tool } from '../components/Drawing';
+import Rectify from '../components/Rectify';
+import { rectifyImage, type Pt } from '../lib/rectify';
 import { DeviationsPanel, IndexPanel, ReadingPanel, SystemsPanel } from '../components/Panels';
 import { measure, measureAll, type Study } from '../lib/engine';
 import { EXAMPLES } from '../lib/examples';
@@ -34,11 +36,13 @@ export default function Measure({ study, own, system, onSystem, onOpen, onChange
   const [mob, setMob] = useState<MobTab>('draw');
   const [msg, setMsg] = useState<{ t: 'err' | 'ok'; s: string } | null>(null);
   const [busy, setBusy] = useState(false);
+  const [rectifying, setRectifying] = useState(false);
   const file = useRef<HTMLInputElement>(null);
 
   const all = useMemo(() => measureAll(study), [study]);
   const res = useMemo(() => measure(study, system), [study, system]);
   useEffect(() => setSelected(null), [system, study.id]);
+  useEffect(() => { if (!study.image) setRectifying(false); }, [study.image]);
 
   // מקלדת: Delete מוחק את הרכיב הנבחר, Escape מבטל בחירה
   useEffect(() => {
@@ -71,7 +75,8 @@ export default function Measure({ study, own, system, onSystem, onOpen, onChange
       };
       onChange(st);
       setTool('select');
-      setMsg({ t: 'ok', s: 'התמונה נטענה. כוונו את המסגרת לקצוות החזית, ואז סמנו קווי חלוקה.' });
+      setRectifying(true);
+      setMsg({ t: 'ok', s: 'התמונה נטענה. אם צולמה מזווית, גררו את ארבע הפינות ליישור. אם היא חזיתית: "ביטול".' });
     } catch (e) {
       setMsg({ t: 'err', s: (e as Error).message });
     }
@@ -99,6 +104,26 @@ export default function Measure({ study, own, system, onSystem, onOpen, onChange
     }
   };
 
+  const rectify = async (quad: Pt[]) => {
+    if (!study.image) return;
+    setBusy(true);
+    try {
+      const r = await rectifyImage(study.image, quad);
+      onChange({ ...study, image: r.data, imgW: r.w, imgH: r.h, frame: { x0: 0, x1: 1, y0: 0, y1: 1 }, aspect: r.h / r.w, updatedAt: Date.now() });
+      setRectifying(false);
+      setMsg({ t: 'ok', s: 'החזית יושרה למלבן. הזינו את הרוחב האמיתי במטרים, וסמנו קווי חלוקה.' });
+    } catch {
+      setMsg({ t: 'err', s: 'היישור לא הצליח. נסו להזיז את הפינות כך שייצרו מרובע קמור.' });
+    } finally {
+      setBusy(false);
+    }
+  };
+  const initialQuad = (): Pt[] | undefined => {
+    if (!study.imgW || !study.imgH || !study.frame) return undefined;
+    const { x0, x1, y0, y1 } = study.frame; const W = study.imgW, H = study.imgH;
+    return [{ x: x0 * W, y: y0 * H }, { x: x1 * W, y: y0 * H }, { x: x1 * W, y: y1 * H }, { x: x0 * W, y: y1 * H }];
+  };
+
   const hint = TOOLS.find((t) => t.id === tool)!.hint;
 
   return (
@@ -112,7 +137,8 @@ export default function Measure({ study, own, system, onSystem, onOpen, onChange
           </select>
           <button className="press btn tb-primary" onClick={() => file.current?.click()}>העלאת תמונה</button>
           <input ref={file} type="file" accept="image/*" hidden aria-label="קובץ תמונה" onChange={(e) => { upload(e.target.files?.[0]); e.target.value = ''; }} />
-          {study.image && <button className="press btn" onClick={detect} disabled={busy}>{busy ? 'מזהה...' : 'זיהוי קווים'}</button>}
+          {study.image && <button className="press btn" onClick={() => setRectifying(!rectifying)} aria-pressed={rectifying}>יישור פרספקטיבה</button>}
+          {study.image && <button className="press btn" onClick={detect} disabled={busy || rectifying}>{busy && !rectifying ? 'מזהה...' : 'זיהוי קווים'}</button>}
         </div>
         <div className="tb-group" aria-label="כלים">
           <span className="label">כלי</span>
@@ -152,7 +178,11 @@ export default function Measure({ study, own, system, onSystem, onOpen, onChange
           <SystemsPanel all={all} system={system} onPick={onSystem} />
         </aside>
         <figure className="col-draw">
-          <Drawing study={study} result={res} tool={tool} guides={guides} selected={selected} onSelect={setSelected} onChange={change} />
+          {rectifying && study.image ? (
+            <Rectify key={study.id + study.imgW} image={study.image} w={study.imgW!} h={study.imgH!} initial={initialQuad()} busy={busy} onApply={rectify} onCancel={() => { setRectifying(false); setMsg(null); }} />
+          ) : (
+            <Drawing study={study} result={res} tool={tool} guides={guides} selected={selected} onSelect={setSelected} onChange={change} />
+          )}
           <figcaption className="draw-legend">
             <span><i style={{ background: 'var(--ok)' }} />מדויק עד {Math.round(SYSTEM[system].green * 100)}%</span>
             <span><i style={{ background: 'var(--near)' }} />קרוב עד {Math.round(SYSTEM[system].orange * 100)}%</span>

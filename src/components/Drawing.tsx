@@ -212,13 +212,13 @@ export default function Drawing({ study, result, tool, guides, selected, onSelec
       {/* קווי חלוקה */}
       {sv.map(({ v, i }) => (
         <g key={`v${i}`} data-hit className="divline" onPointerDown={lineDown('v', i)}>
-          <line x1={X(v)} x2={X(v)} y1={FY} y2={FY + FH} stroke="var(--ink)" strokeWidth={2.2 * U} />
+          <line x1={X(v)} x2={X(v)} y1={FY} y2={FY + FH} stroke="var(--ink)" strokeWidth={2.2 * U} pathLength={1} className="ink-line" />
           <line x1={X(v)} x2={X(v)} y1={FY} y2={FY + FH} stroke="transparent" strokeWidth={14 * U} />
         </g>
       ))}
       {sh.map(({ v, i }) => (
         <g key={`h${i}`} data-hit className="divline" onPointerDown={lineDown('h', i)}>
-          <line y1={Y(v)} y2={Y(v)} x1={FX} x2={FX + FW} stroke="var(--ink)" strokeWidth={2.2 * U} />
+          <line y1={Y(v)} y2={Y(v)} x1={FX} x2={FX + FW} stroke="var(--ink)" strokeWidth={2.2 * U} pathLength={1} className="ink-line" />
           <line y1={Y(v)} y2={Y(v)} x1={FX} x2={FX + FW} stroke="transparent" strokeWidth={14 * U} />
         </g>
       ))}
@@ -305,6 +305,24 @@ export default function Drawing({ study, result, tool, guides, selected, onSelec
               </g>
             );
           })}
+        </g>
+      )}
+
+      {/* מחוגה: פס זהוב שעובר על השרטוט בכל שינוי שיטה או מחקר */}
+      <defs>
+        <linearGradient id="sweepg" x1="0" x2="1">
+          <stop offset="0" stopColor="var(--gold)" stopOpacity="0" />
+          <stop offset=".8" stopColor="var(--gold)" stopOpacity=".18" />
+          <stop offset="1" stopColor="var(--gold)" stopOpacity=".55" />
+        </linearGradient>
+      </defs>
+      <rect key={`sw-${result.system}-${study.id}`} className="sweep" x={FX} y={FY} width={FW * 0.22} height={FH} fill="url(#sweepg)" pointerEvents="none" style={{ ['--sw' as string]: `${FW * 0.9}px` }} />
+
+      {/* מצב ריק: הוראה על השרטוט עצמו */}
+      {!study.vx.length && !study.hy.length && !study.rects.length && (
+        <g pointerEvents="none" className="empty-hint" textAnchor="middle">
+          <text x={FX + FW / 2} y={FY + FH / 2 - fs * 0.6} fontSize={fs * 1.6} fontWeight={600} fill="var(--ink-soft)" style={{ direction: 'rtl' }}>סמנו את קווי הקומות והמפרשים</text>
+          <text x={FX + FW / 2} y={FY + FH / 2 + fs * 1.2} fontSize={fs * 1.05} fill="var(--ink-mute)" style={{ direction: 'rtl' }}>בחרו "קו אנכי" או "קו אופקי" בסרגל, ולחצו כאן</text>
         </g>
       )}
 

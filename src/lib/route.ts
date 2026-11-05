@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 
 // ניתוב hash: הכתובת נושאת את הדף, המחקר והשיטה, כך שהעתקת קישור שומרת את המצב.
-export type Page = 'home' | 'measure' | 'systems' | 'method';
-const PAGES: Page[] = ['home', 'measure', 'systems', 'method'];
+export type Page = 'home' | 'measure' | 'systems' | 'article' | 'method';
+const PAGES: Page[] = ['home', 'measure', 'systems', 'article', 'method'];
 
 const parse = () => {
   const [path, query = ''] = window.location.hash.replace(/^#\/?/, '').split('?');

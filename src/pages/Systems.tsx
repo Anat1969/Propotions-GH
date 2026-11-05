@@ -3,6 +3,7 @@ import { useState } from 'react';
 import Rich from '../components/Rich';
 import { MODULOR_BLUE, MODULOR_RED, PALLADIO, PHI, R10, SYSTEMS, type SystemDef } from '../lib/systems';
 import { href } from '../lib/route';
+import { ModulorFigure } from '../components/Visuals';
 
 function Ruler({ s }: { s: SystemDef }) {
   const W = 320, H = 70;
@@ -86,7 +87,7 @@ export default function Systems() {
               <span className="sys-latin">{s.latin}</span>
               <span className="sys-fam">{s.family === 'ratio' ? 'יחס' : 'מידה'}</span>
             </div>
-            <Ruler s={s} />
+            {s.id === 'modulor' ? <div className="mod-wrap"><ModulorFigure compact /><Ruler s={s} /></div> : <Ruler s={s} />}
             <dl className="sys-dl">
               <dt className="label">הרעיון</dt><dd><Rich>{s.idea}</Rich></dd>
               <dt className="label">למה</dt><dd><Rich>{s.why}</Rich></dd>
