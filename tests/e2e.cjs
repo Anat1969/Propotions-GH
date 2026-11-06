@@ -41,7 +41,7 @@ async function setup(page) {
     ok(await p.locator('ai-menu .logo').isVisible(), 'כפתור הלוגו A&I בסרגל');
     ok(!(await p.locator('header >> text=העתקת קישור').first().isVisible().catch(() => false)), 'אין כפתורי פיתוח חופשיים בסרגל');
     ok(await p.locator('.tone-problem').isVisible() && await p.locator('.tone-solution').isVisible() && await p.locator('.tone-insight').isVisible(), 'בעיה, פתרון ותובנה');
-    ok(await p.locator('.ex-card').count() === 4, '4 כרטיסי דוגמה');
+    ok(await p.locator('.ms-tile').count() === 5, 'דף הבית: חמש השיטות בשורה אחת');
     // הצעצוע: גרירה אל חתך הזהב נועלת
     const toy = await p.locator('.toy-svg').boundingBox();
     const scale = toy.width / 640; // viewBox רוחב 640, מתחיל ב-20-
@@ -52,13 +52,10 @@ async function setup(page) {
     await p.mouse.up();
     ok((await p.locator('.toy-cap').innerText()).includes('ננעל: יחס הזהב'), 'צעצוע: הקו ננעל על יחס הזהב');
     ok((await p.locator('.toy-svg text').filter({ hasText: '1.618' }).count()) === 1, 'צעצוע: היחס מוצג 1.618');
-    ok(await p.locator('.prec').count() === 3, '3 תקדימים בקו דיו');
-    await p.locator('.prec').last().hover();
-    ok(await p.locator('.prec .reg').count() === 1, 'ריחוף על תקדים חושף קווי ויסות');
     ok(await p.locator('.backdrop').count() === 1, 'רקע חי בדף הבית');
 
     // ניווט
-    for (const [name, h1part] of [['שיטות', 'חמש שיטות'], ['כתבה', 'מיתוס, מדידה'], ['אמינות', 'מכשיר שאומר'], ['בית', 'הקומפוזיציה נמדדת']]) {
+    for (const [name, h1part] of [['שיטות', 'יחס הזהב'], ['כתבה', 'מיתוס, מדידה'], ['אמינות', 'מכשיר שאומר'], ['בית', 'הקומפוזיציה נמדדת']]) {
       await p.locator('.tabs').getByRole('link', { name }).click();
       await p.waitForFunction((t) => document.querySelector('h1')?.textContent.includes(t), h1part, { timeout: 4000 }).catch(() => {});
       ok((await p.locator('h1').innerText()).includes(h1part), `לשונית ${name}`);
@@ -68,9 +65,25 @@ async function setup(page) {
     ok(await p.locator('.timeline li').count() === 7, 'כתבה: ציר זמן של 7 תחנות');
     ok(await p.locator('.art-quote .q-tag').innerText() === 'תרגום', 'כתבה: ציטוט עם תרגום ומקור');
     ok(await p.locator('.art-sources li').count() >= 6, 'כתבה: רשימת מקורות');
+    // מסך השיטות: שיטה, דוגמה, סרגלים על התמונה, השוואה
+    await p.goto(BASE + '#/systems?m=palladio', { waitUntil: 'networkidle' });
+    ok((await p.locator('.si-title').innerText()) === 'יחסי פלאדיו', 'שיטות: פלאדיו נבחר מהכתובת');
+    ok((await p.locator('.si-dl dt').allInnerTexts()).join('|') === 'מאיפה|איפה למצוא|למה זו שיטה|מה המדע אומר|דוגמה', 'שיטות: מקור, איפה למצוא, למה, מדע, דוגמה');
+    ok((await p.locator('.sci-pill').innerText()).length > 0, 'שיטות: פסק דין של המדע');
+    await p.locator('.stage-bar').getByRole('button', { name: 'סנטה מריה נובלה' }).click();
+    await p.waitForFunction(() => location.hash.includes('ex=novella'));
+    await p.locator('.stage-bar').getByRole('button', { name: 'איור' }).click();
+    ok((await p.locator('.stage-read').innerText()).includes('1.00') && (await p.locator('.stage-read').innerText()).includes('0.0%'), 'סנטה מריה נובלה: ריבוע מדויק לפי פלאדיו');
+    await p.locator('.stage-bar').getByRole('button', { name: 'בניין מגורים, סכמה' }).click();
+    await p.getByRole('button', { name: 'הכול' }).click();
+    ok(await p.locator('.stage-svg .ruler-ov').count() === 5, 'השוואה: חמשת הסרגלים על אותה חזית');
+    ok(await p.locator('.read-chip').count() === 5, 'השוואה: קריאה לכל שיטה');
+    await p.locator('.sys-tab', { hasText: 'המודולור' }).click();
+    await p.waitForFunction(() => location.hash.includes('m=modulor'));
+    await p.waitForFunction(() => document.querySelectorAll('.stage-svg .ruler-ov').length === 1, null, { timeout: 3000 }).catch(() => {});
+    ok(await p.locator('.stage-svg .ruler-ov').count() === 1, 'מעבר שיטה מאפס לסרגל שלה');
     // תקדים נמדד: אלברטי מסביר בפלאדיו
-    await p.goto(BASE, { waitUntil: 'networkidle' });
-    await p.locator('.prec').last().getByRole('link', { name: 'למדידה' }).click();
+    await p.goto(BASE + '#/measure?st=ex-novella&s=palladio', { waitUntil: 'networkidle' });
     await p.waitForSelector('[data-testid=index]');
     await p.waitForTimeout(900);
     ok((await p.locator('[data-testid=index]').innerText()) === '100%', 'סנטה מריה נובלה: 100% לפי פלאדיו');
@@ -79,7 +92,7 @@ async function setup(page) {
 
     // מדידה: דוגמה
     await p.goto(BASE, { waitUntil: 'networkidle' });
-    await p.getByRole('link', { name: 'מדידת דוגמה' }).click();
+    await p.locator('.hero-cta').getByRole('link', { name: 'למדידה' }).click();
     await p.waitForSelector('[data-testid=index]');
     ok(p.url().includes('st=ex-residential') && p.url().includes('s=golden'), 'הכתובת נושאת מחקר ושיטה');
     const goldIdx = await p.locator('[data-testid=index]').innerText();
@@ -198,30 +211,29 @@ async function setup(page) {
       await setup(ph);
       const png = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAIAAAABCAYAAAD0In+KAAAAEUlEQVR42mP8z8Dwn4GBgQEAFgYCAQyz7TQAAAAASUVORK5CYII=', 'base64');
       await ph.route('**/commons.wikimedia.org/wiki/Special:FilePath/**', (r) => r.fulfill({ status: 200, contentType: 'image/png', body: png }));
-      await ph.goto(BASE, { waitUntil: 'networkidle' });
-      await ph.locator('.prec').first().scrollIntoViewIfNeeded();
-      await ph.waitForTimeout(600);
-      ok(await ph.locator('.prec-photo .photo.is-ok').count() === 3, 'שלושה צילומי תקדים נטענו');
-      ok((await ph.locator('.prec-photo .ph-credit').first().getAttribute('href')).startsWith('https://commons.wikimedia.org/wiki/File:'), 'קרדיט מקשר לדף הקובץ');
-      ok((await ph.locator('.prec-photo .ph-credit').first().innerText()).includes('CC BY-SA'), 'קרדיט כולל רישיון');
-      await ph.locator('.prec').first().locator('.prec-switch').getByRole('button', { name: 'קווי ויסות' }).click();
-      await ph.mouse.move(5, 5);
-      ok(await ph.locator('.prec').first().locator('.prec-photo.is-hidden').count() === 1, 'מתג: מהצילום לקווי הוויסות');
+      await ph.goto(BASE + '#/systems?m=golden&ex=parthenon', { waitUntil: 'networkidle' });
+      await ph.waitForTimeout(500);
+      ok(await ph.locator('.stage-svg image').count() === 1, 'במה: הצילום נטען');
+      ok((await ph.locator('.stage-read').innerText()).includes('גררו'), 'במה: לפני כיוון המסגרת, הוראה ולא מספר');
+      const cr = await ph.locator('.stage-svg .corner').last().boundingBox();
+      await ph.mouse.move(cr.x + cr.width / 2, cr.y + cr.height / 2); await ph.mouse.down();
+      await ph.mouse.move(cr.x + cr.width / 2 - 40, cr.y + cr.height / 2 - 10, { steps: 5 }); await ph.mouse.up();
+      ok((await ph.locator('.stage-read').innerText()).includes('φ'), 'במה: אחרי כיוון, קריאה מול יחס הזהב');
+      ok((await ph.locator('.ov-credit').textContent()).includes('CC BY-SA'), 'במה: קרדיט ורישיון לצילום');
       await ph.goto(BASE + '#/article', { waitUntil: 'networkidle' });
       for (const el of await ph.locator('.article .photo').all()) { await el.scrollIntoViewIfNeeded(); await ph.waitForTimeout(250); }
       ok(await ph.locator('.article .photo.is-ok').count() === 3, 'כתבה: הפרתנון, תוכנית פלאדיו ותבליט המודולור');
-      await ph.goto(BASE + '#/systems', { waitUntil: 'networkidle' });
-      await ph.locator('.sys-photo').scrollIntoViewIfNeeded(); await ph.waitForTimeout(300);
-      ok(await ph.locator('.sys-photo.is-ok').count() === 1, 'שיטות: תבליט המודולור בכרטיס המודולור');
+      await ph.goto(BASE + '#/systems?m=modulor', { waitUntil: 'networkidle' });
+      await ph.waitForTimeout(400);
+      ok(await ph.locator('.si-photo.is-ok').count() === 1, 'שיטות: תבליט המודולור בהסבר המודולור');
       await ph.close();
       const nf = await b.newPage({ viewport: { width: 1440, height: 900 } });
       await setup(nf);
       await nf.route('**/commons.wikimedia.org/**', (r) => r.abort());
-      await nf.goto(BASE, { waitUntil: 'networkidle' });
-      for (const el of await nf.locator('.prec').all()) await el.scrollIntoViewIfNeeded();
-      await nf.waitForFunction(() => document.querySelectorAll('.prec-photo').length === 0, null, { timeout: 5000 }).catch(() => {});
-      const nfp = await nf.locator('.prec-photo').count(), nfs = await nf.locator('.prec-svg').count();
-      ok(nfp === 0 && nfs === 3, `בלי רשת: האיורים נשארים, בלי תמונה שבורה (${nfp}, ${nfs})`);
+      await nf.goto(BASE + '#/systems?m=golden&ex=parthenon', { waitUntil: 'networkidle' });
+      await nf.waitForFunction(() => document.querySelector('.stage-ink'), null, { timeout: 5000 }).catch(() => {});
+      ok(await nf.locator('.stage-ink').count() === 1 && await nf.locator('.stage-svg image').count() === 0, 'בלי רשת: הבמה עוברת לאיור, בלי תמונה שבורה');
+      ok(await nf.locator('.stage-bar').getByRole('button', { name: 'צילום' }).isDisabled(), 'בלי רשת: כפתור הצילום כבוי');
       await nf.close();
     }
 
@@ -230,7 +242,7 @@ async function setup(page) {
       const m = await b.newPage({ viewport: vp, reducedMotion: 'reduce' });
       m.on('pageerror', (e) => errors.push(e.message));
       await setup(m);
-      for (const h of ['', '#/measure?st=ex-residential&s=golden', '#/measure?st=ex-plan&s=palladio', '#/systems', '#/method']) {
+      for (const h of ['', '#/measure?st=ex-residential&s=golden', '#/measure?st=ex-plan&s=palladio', '#/systems?m=modulor&ex=residential', '#/method', '#/article']) {
         await m.goto(BASE + h, { waitUntil: 'networkidle' });
         const hs = await m.evaluate(() => document.documentElement.scrollWidth > window.innerWidth);
         ok(!hs, `${vp.width}px ${h || 'בית'}: בלי גלילה אופקית`);

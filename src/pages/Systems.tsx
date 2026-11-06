@@ -1,111 +1,131 @@
-// חמש השיטות: הרעיון, למה הוא עובד, איך נמדד, מקור ומגבלה. לכל שיטה סרגל חזותי משלה.
-import { useState } from 'react';
+// מסך השיטות: בוחרים שיטה, רואים אותה מונחת על דוגמה, ומשווים לשאר השיטות על אותה תמונה.
+import { useEffect, useMemo, useState } from 'react';
 import Rich from '../components/Rich';
-import { MODULOR_BLUE, MODULOR_RED, PALLADIO, PHI, R10, SYSTEMS, type SystemDef } from '../lib/systems';
-import { href } from '../lib/route';
-import { ModulorFigure } from '../components/Visuals';
+import Stage, { EXAMPLES, readouts } from '../components/Stage';
 import Photo, { PHOTOS } from '../components/Photo';
+import { METHOD, METHODS, type ExampleId } from '../lib/methods';
+import { SYSTEM, SYSTEMS, type SystemId } from '../lib/systems';
+import { go, href, useRoute } from '../lib/route';
+import { pct } from '../lib/engine';
 
-function Ruler({ s }: { s: SystemDef }) {
-  const W = 320, H = 70;
-  if (s.id === 'golden') {
-    const a = W / PHI;
-    return (
-      <svg viewBox={`0 0 ${W} ${H}`} className="ruler" style={{ direction: 'ltr' }} aria-label="חלוקת קו ביחס הזהב">
-        <rect x={0} y={14} width={a} height={22} fill={s.color} />
-        <rect x={a} y={14} width={W - a} height={22} fill={s.color} opacity={0.45} />
-        <text x={a / 2} y={56} textAnchor="middle" fontFamily="var(--mono)" fontSize="12">0.618</text>
-        <text x={a + (W - a) / 2} y={56} textAnchor="middle" fontFamily="var(--mono)" fontSize="12">0.382</text>
-      </svg>
-    );
-  }
-  if (s.id === 'palladio') {
-    const h = 40, k = 18;
-    let x = 2;
-    return (
-      <svg viewBox={`0 0 ${W} ${H}`} className="ruler" style={{ direction: 'ltr' }} aria-label="שישה יחסי חדרים של פלאדיו">
-        {PALLADIO.map((p) => {
-          const w = (h * p.value * k) / 18 * 0.62;
-          const el = <rect key={p.name} x={x} y={8} width={w} height={h * 0.62} fill="none" stroke={s.color} strokeWidth="2" />;
-          const t = <text key={p.name + 't'} x={x + w / 2} y={H - 8} textAnchor="middle" fontFamily="var(--mono)" fontSize="10">{p.value.toFixed(2)}</text>;
-          x += w + 8;
-          return [el, t];
-        })}
-      </svg>
-    );
-  }
-  if (s.id === 'modulor') {
-    const lg = (v: number) => (Math.log10(v) - Math.log10(100)) / (Math.log10(2300) - Math.log10(100)) * (W - 10) + 5;
-    return (
-      <svg viewBox={`0 0 ${W} ${H}`} className="ruler" style={{ direction: 'ltr' }} aria-label="הסדרה האדומה והכחולה של המודולור, 100 עד 2260 מילימטר">
-        <line x1={0} x2={W} y1={30} y2={30} stroke="var(--rule)" />
-        {MODULOR_RED.filter((v) => v >= 100 && v <= 2300).map((v) => <g key={'r' + v}><line x1={lg(v)} x2={lg(v)} y1={10} y2={30} stroke={s.color} strokeWidth="3" /><text x={lg(v)} y={8} fontSize="9" textAnchor="middle" fontFamily="var(--mono)">{v}</text></g>)}
-        {MODULOR_BLUE.filter((v) => v >= 100 && v <= 2300).map((v) => <g key={'b' + v}><line x1={lg(v)} x2={lg(v)} y1={30} y2={50} stroke={s.color} strokeWidth="1.5" strokeDasharray="3 2" /><text x={lg(v)} y={62} fontSize="9" textAnchor="middle" fontFamily="var(--mono)">{v}</text></g>)}
-      </svg>
-    );
-  }
-  if (s.id === 'renard') {
-    return (
-      <svg viewBox={`0 0 ${W} ${H}`} className="ruler" style={{ direction: 'ltr' }} aria-label="עשרת המספרים המועדפים של R10">
-        {R10.map((v, i) => { const x = 8 + i * 31; const hh = v * 4.6; return <g key={v}><rect x={x} y={44 - hh} width={20} height={hh} fill={s.color} opacity={0.4 + i * 0.06} /><text x={x + 10} y={60} fontSize="10" textAnchor="middle" fontFamily="var(--mono)">{v}</text></g>; })}
-      </svg>
-    );
-  }
-  return (
-    <svg viewBox={`0 0 ${W} ${H}`} className="ruler" style={{ direction: 'ltr' }} aria-label="גריד של 100 מילימטר">
-      {Array.from({ length: 17 }, (_, i) => <line key={i} x1={8 + i * 19} x2={8 + i * 19} y1={10} y2={i % 3 === 0 ? 44 : 34} stroke={s.color} strokeWidth={i % 3 === 0 ? 2 : 1} />)}
-      <text x={8} y={60} fontSize="10" fontFamily="var(--mono)">0</text>
-      <text x={8 + 3 * 19} y={60} fontSize="10" textAnchor="middle" fontFamily="var(--mono)">300</text>
-      <text x={8 + 6 * 19} y={60} fontSize="10" textAnchor="middle" fontFamily="var(--mono)">600</text>
-    </svg>
-  );
-}
-
-const POST = `מלבן זהב הוא לא סוד של יופי. הוא החלטה שאפשר למדוד.
-
-כשמסמנים את קווי הקומות והמפרשים על חזית, כל תא הופך ליחס. מספר אחד שאפשר להשוות ל-1.618, ל-3:2 של פלאדיו, או לסדרה של המודולור.
-
-מה שמפתיע: חזיתות טובות לא נשענות על שיטה אחת. בניין מגורים טיפוסי יכול לסטות מיחס הזהב ב-20%, ולשבת בדיוק על יחסי פלאדיו. המדידה לא שופטת. היא חושפת את ההיגיון שהמתכנן בחר, גם כשלא כתב אותו.
-
-הצעד המעשי: לפני שמשנים חזית, למדוד אותה. הרכיב שסוטה הכי הרבה הוא בדרך כלל זה שהעין כבר הרגישה.
-
-איזו חזית בעיר שלכם הייתם רוצים למדוד?`;
+const EX_ORDER: ExampleId[] = ['parthenon', 'rotonda', 'novella', 'residential'];
+const VERDICT_TONE = { 'חזק': 'ok', 'חלקי': 'near', 'חלש': 'off' } as const;
 
 export default function Systems() {
-  const [copied, setCopied] = useState(false);
+  const { params } = useRoute();
+  const m = (params.m && params.m in SYSTEM ? params.m : 'golden') as SystemId;
+  const info = METHOD[m];
+  const ex = (params.ex && params.ex in EXAMPLES ? params.ex : info.examples[0]) as ExampleId;
+  const E = EXAMPLES[ex];
+  const [active, setActive] = useState<SystemId[]>([m]);
+  const [photoMode, setPhotoMode] = useState(true);
+  const [noPhoto, setNoPhoto] = useState<Record<string, boolean>>({});
+  const [ratio, setRatio] = useState<number | null>(null);
+  const [aligned, setAligned] = useState(false);
+  const [width, setWidth] = useState<string>('');
+
+  useEffect(() => { setActive([m]); }, [m]);
+  useEffect(() => { setRatio(null); setAligned(false); setWidth(E.photoHint ? E.photoHint.match(/[\d.]+/)?.[0] ?? '' : ''); }, [ex, photoMode, E.photoHint]);
+
+  const usePhoto = photoMode && !!E.photo && !noPhoto[ex];
+  const r = usePhoto ? ratio ?? (0.84 * 600) / (0.76 * 400) : E.frame.w / E.frame.h;
+  const wM = usePhoto ? (parseFloat(width) || null) : E.widthM ?? null;
+  const showRead = (usePhoto && aligned) || (!usePhoto && E.exact);
+  const rows = useMemo(() => readouts(active, r, wM), [active, r, wM]);
+  const toggle = (id: SystemId) => setActive((a) => (a.includes(id) ? a.filter((x) => x !== id) : [...a, id]));
+  const all = active.length === SYSTEMS.length;
+
   return (
-    <div className="page-wide systems-page">
-      <header className="page-head">
-        <div className="label">שיטות</div>
-        <h1 className="page-title">חמש שיטות, שתי משפחות: יחס ומידה.</h1>
-        <Rich as="p" className="page-sub">{'**שיטות יחס** לא תלויות בגודל. **שיטות מידה** צריכות רוחב אמיתי במטרים.'}</Rich>
-      </header>
-      <div className="sys-grid">
-        {SYSTEMS.map((s) => (
-          <article key={s.id} className="sys-card" style={{ ['--sys' as string]: s.color }}>
-            <div className="sys-top">
-              <h2 className="sys-name">{s.name}</h2>
-              <span className="sys-latin">{s.latin}</span>
-              <span className="sys-fam">{s.family === 'ratio' ? 'יחס' : 'מידה'}</span>
-            </div>
-            {s.id === 'modulor' ? <><Photo src={PHOTOS.modulor} className="sys-photo" width={700} /><div className="mod-wrap"><ModulorFigure compact /><Ruler s={s} /></div></> : <Ruler s={s} />}
-            <dl className="sys-dl">
-              <dt className="label">הרעיון</dt><dd><Rich>{s.idea}</Rich></dd>
-              <dt className="label">למה</dt><dd><Rich>{s.why}</Rich></dd>
-              <dt className="label">איך נמדד</dt><dd><Rich>{s.measure}</Rich></dd>
-              <dt className="label">סבולת</dt><dd><Rich>{`מדויק עד **${Math.round(s.green * 100)}%**, קרוב עד **${Math.round(s.orange * 100)}%**.`}</Rich></dd>
-              <dt className="label">מגבלה</dt><dd className="lim">{s.limit}</dd>
-            </dl>
-            <p className="src">{s.source}. תקן: {s.standard}</p>
-            <a className="press btn sys-try" href={href('measure', { st: 'ex-residential', s: s.id })}>מדידה לפי {s.short}</a>
-          </article>
+    <div className="sys-screen">
+      <nav className="sys-nav" aria-label="שיטות">
+        <div className="label">שיטה</div>
+        {METHODS.map((x) => (
+          <a key={x.id} className={`sys-tab press${x.id === m ? ' is-on' : ''}`} aria-current={x.id === m ? 'true' : undefined} href={href('systems', { m: x.id })} style={{ ['--sys' as string]: SYSTEM[x.id].color }}>
+            <span className="st-name"><i className="sys-dot" />{SYSTEM[x.id].name}</span>
+            <span className={`st-sci tone-${VERDICT_TONE[x.science.verdict]}`}>{x.science.label}</span>
+          </a>
         ))}
-        <article className="sys-card post-card">
-          <div className="label">פוסט מוכן להעתקה</div>
-          <div className="post">{POST.split('\n\n').map((p, i) => <p key={i}>{p}</p>)}</div>
-          <button className="press btn" onClick={() => navigator.clipboard?.writeText(POST).then(() => { setCopied(true); setTimeout(() => setCopied(false), 1800); })}>{copied ? 'הועתק' : 'העתקת הפוסט'}</button>
-        </article>
-      </div>
+        <p className="explain sys-how">בוחרים שיטה. הסרגל שלה מונח על הדוגמה. מדליקים סרגלים נוספים כדי להשוות.</p>
+      </nav>
+
+      <section className="sys-stage">
+        <div className="stage-bar">
+          <div className="tb-group" role="group" aria-label="דוגמה">
+            <span className="label">דוגמה</span>
+            {EX_ORDER.map((id) => (
+              <button key={id} className="chip-tool" aria-pressed={id === ex} onClick={() => go('systems', { m, ex: id }, true)}>
+                {EXAMPLES[id].name}{info.examples.includes(id) && <i className="rec-dot" title="דוגמה לשיטה הזו" />}
+              </button>
+            ))}
+          </div>
+          <div className="tb-group" role="group" aria-label="בסיס">
+            <button className="chip-tool" aria-pressed={!usePhoto} onClick={() => setPhotoMode(false)}>איור</button>
+            <button className="chip-tool" aria-pressed={usePhoto} disabled={!E.photo || noPhoto[ex]} title={noPhoto[ex] ? 'הצילום לא נטען' : undefined} onClick={() => setPhotoMode(true)}>צילום</button>
+            {usePhoto && (
+              <>
+                <label className="label" htmlFor="sw">רוחב, מ'</label>
+                <input id="sw" className="field tb-num" type="number" min={1} step={0.01} value={width} placeholder="?" onChange={(e) => setWidth(e.target.value)} />
+              </>
+            )}
+          </div>
+          <div className="tb-group" role="group" aria-label="סרגלים">
+            <span className="label">סרגלים</span>
+            {SYSTEMS.map((s) => (
+              <button key={s.id} className="chip-tool" aria-pressed={active.includes(s.id)} onClick={() => toggle(s.id)} style={{ ['--sys' as string]: s.color }}>
+                <i className="sys-dot" />{s.short}
+              </button>
+            ))}
+            <button className="chip-all" aria-pressed={all} onClick={() => setActive(all ? [m] : SYSTEMS.map((s) => s.id))}>הכול</button>
+          </div>
+        </div>
+
+        <div className="stage-wrap">
+          <Stage key={ex + String(usePhoto)} example={ex} active={active} photoMode={usePhoto} widthM={wM} onFrame={(r2, al) => { setRatio(r2); setAligned(al); }} onPhotoFail={() => setNoPhoto((n) => ({ ...n, [ex]: true }))} />
+        </div>
+
+        <div className="stage-read" aria-live="polite">
+          {!showRead ? (
+            usePhoto ? <span className="explain"><b>גררו את שתי הפינות הלבנות</b> לקצות החזית, ואז תופיע הקריאה.</span>
+              : <span className="explain">איור סכמטי: הסרגלים מראים את הדרך, לא מדידה. למדידה: <b>צילום</b>, וכיוון המסגרת לקצוות החזית.</span>
+          ) : rows.length === 0 ? (
+            <span className="explain">הדליקו סרגל כדי לקרוא.</span>
+          ) : (
+            rows.map((x) => (
+              <span key={x.id} className="read-chip" style={{ ['--sys' as string]: SYSTEM[x.id].color }}>
+                <i className="sys-dot" /><b>{SYSTEM[x.id].short}</b> {x.text}
+                {!isNaN(x.dev) && <bdi className="num" style={{ color: x.ok ? 'var(--ok)' : 'var(--off)' }}> {pct(x.dev)}</bdi>}
+              </span>
+            ))
+          )}
+          {usePhoto && aligned && E.photoHint && <span className="explain mute">{E.photoHint}</span>}
+        </div>
+      </section>
+
+      <aside className="sys-info" style={{ ['--sys' as string]: SYSTEM[m].color }}>
+        <div className="si-head">
+          <h1 className="si-title">{SYSTEM[m].name}</h1>
+          <span className="sys-latin">{SYSTEM[m].latin}</span>
+        </div>
+        <Rich as="p" className="si-insight">{info.insight}</Rich>
+        <dl className="si-dl">
+          <dt className="label">מאיפה</dt>
+          <dd>{info.source}</dd>
+          <dt className="label">איפה למצוא</dt>
+          <dd>{info.where.url ? <a href={info.where.url} target="_blank" rel="noreferrer">{info.where.text}</a> : info.where.text}</dd>
+          <dt className="label">למה זו שיטה</dt>
+          <dd><Rich>{info.why}</Rich></dd>
+          <dt className="label">מה המדע אומר</dt>
+          <dd>
+            <span className={`sci-pill tone-${VERDICT_TONE[info.science.verdict]}`}>{info.science.label}</span>
+            <Rich as="span" className="sci-text">{info.science.text}</Rich>
+            <span className="src">{info.science.src}</span>
+          </dd>
+          <dt className="label">דוגמה</dt>
+          <dd>{info.exampleNote}</dd>
+        </dl>
+        {m === 'modulor' && <Photo src={PHOTOS.modulor} className="si-photo" width={600} />}
+        <a className="press btn tb-primary si-go" href={href('measure', { st: 'ex-residential', s: m })}>למדידה לפי {SYSTEM[m].short}</a>
+      </aside>
     </div>
   );
 }
