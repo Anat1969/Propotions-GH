@@ -326,3 +326,100 @@ a.btn { text-decoration: none; display: inline-block; }
 @media print { .photo img { opacity: 1 !important; } }
 
 .sys-photo { aspect-ratio: 4 / 3; }
+
+/* ---------- סידור מחדש: כל מסך בגודל החלון ---------- */
+/* דף הבית: מסך אחד */
+.page-home .app-main { overflow: hidden; }
+.home-fit { height: 100%; display: grid; grid-template-rows: minmax(0, 1fr) auto; gap: clamp(10px, 1.6vh, 20px); padding: clamp(12px, 2vh, 28px) clamp(16px, 2.4vw, 40px); max-width: 1800px; margin: 0 auto; width: 100%; }
+.home-fit .hero { min-height: 0; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: center; }
+.home-fit .hero-title { font-size: clamp(30px, min(4.2vw, 6.4vh), 64px); margin: 6px 0 10px; }
+.home-fit .hero-sub { font-size: clamp(14px, min(1.25vw, 2.1vh), 19px); }
+.home-fit .hero-cta { margin: clamp(10px, 2vh, 20px) 0; }
+.home-fit .tone p { font-size: 13px; line-height: 1.5; }
+.home-fit .tone { padding: 10px 12px; }
+.home-fit .toy-svg { max-height: min(46vh, 420px); }
+.method-strip { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; }
+.ms-tile { display: flex; flex-direction: column; gap: 3px; padding: 10px 12px; text-decoration: none; color: var(--ink); text-align: right; border-top: 3px solid var(--sys); background: rgba(255,255,255,.94); }
+.ms-name { font-weight: 600; font-size: 14px; display: flex; align-items: center; gap: 6px; }
+.ms-insight { font-size: 13px; color: var(--ink-soft); }
+.ms-sci { font-size: 11px; font-family: var(--mono); color: var(--ink-mute); }
+
+/* מסך השיטות: רשימה, במה, הסבר */
+.page-systems .app-main { overflow: hidden; }
+.sys-screen { height: 100%; min-height: 0; display: grid; grid-template-columns: minmax(180px, 220px) minmax(0, 1fr) minmax(300px, 380px); background: rgba(255,255,255,.9); }
+.sys-screen > * { min-height: 0; min-width: 0; }
+.sys-nav { border-left: 1px solid var(--rule); padding: 14px 12px; display: flex; flex-direction: column; gap: 6px; overflow: auto; }
+.sys-tab { display: flex; flex-direction: column; gap: 2px; padding: 9px 10px; text-decoration: none; text-align: right; border-color: transparent; box-shadow: none; border-right: 3px solid transparent; }
+.sys-tab:hover { box-shadow: var(--shadow-1); }
+.sys-tab.is-on { background: #fff; color: var(--ink); border-right-color: var(--sys); box-shadow: var(--shadow-1); }
+.sys-tab.is-on .st-name { font-weight: 700; }
+.st-name { font-size: 14px; display: flex; align-items: center; gap: 6px; color: var(--ink); }
+.st-sci { font-size: 11px; font-family: var(--mono); }
+.tone-ok { color: var(--ok); } .tone-near { color: var(--near); } .tone-off { color: var(--off); }
+.sys-how { margin-top: auto; }
+.sys-stage { display: grid; grid-template-rows: auto minmax(0, 1fr) auto; min-height: 0; }
+.stage-bar { display: flex; flex-wrap: wrap; gap: 4px 16px; align-items: center; padding: 8px 14px; border-bottom: 1px solid var(--rule-soft); }
+.rec-dot { display: inline-block; width: 6px; height: 6px; background: var(--gold); margin-inline-start: 4px; vertical-align: 2px; }
+.chip-all { font: inherit; font-size: 12px; border: 0; border-radius: 0; background: transparent; color: var(--ink-mute); padding: 5px 9px; cursor: pointer; border-inline-start: 1px solid var(--rule); margin-inline-start: 4px; font-family: var(--mono); }
+.chip-all[aria-pressed="true"] { color: var(--ink); font-weight: 700; }
+.chip-tool:disabled { opacity: .35; cursor: not-allowed; }
+.stage-wrap { min-height: 0; padding: 8px 14px; background: linear-gradient(#fff, #FBFBF9); }
+.stage-svg { width: 100%; height: 100%; display: block; touch-action: none; user-select: none; }
+.stage-ink .ink { fill: none; stroke: var(--ink); stroke-width: 1.6; stroke-dasharray: 1; stroke-dashoffset: 1; animation: ink 1.4s cubic-bezier(.4,.1,.2,1) forwards; }
+.ruler-ov { animation: reg-in .4s ease-out both; }
+.ov-tag { font-family: var(--mono); font-size: 15px; font-weight: 600; }
+.ov-num { font-family: var(--mono); font-size: 12px; }
+.ov-credit { font-family: var(--mono); font-size: 10px; fill: var(--ink-mute); }
+.stage-svg .corner { cursor: grab; }
+.stage-read { display: flex; flex-wrap: wrap; gap: 6px 16px; align-items: center; padding: 8px 14px 10px; border-top: 1px solid var(--rule-soft); min-height: 42px; font-size: 13px; }
+.read-chip { display: inline-flex; align-items: center; gap: 5px; }
+.sys-info { border-right: 1px solid var(--rule); padding: 16px 18px; display: flex; flex-direction: column; gap: 10px; overflow: auto; border-top: 4px solid var(--sys); }
+.si-head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.si-title { font-size: clamp(20px, 1.8vw, 26px); margin: 0; font-weight: 600; }
+.si-insight { font-size: 17px; margin: 0; }
+.si-dl { display: grid; grid-template-columns: minmax(0, 1fr); gap: 2px; margin: 0; font-size: 13px; }
+.si-dl dt { margin-top: 8px; }
+.si-dl dd { margin: 0; color: var(--ink-soft); line-height: 1.55; display: flex; flex-direction: column; gap: 3px; }
+.si-dl a { color: var(--ink); }
+.sci-pill { align-self: flex-start; font-size: 12px; font-weight: 700; font-family: var(--mono); padding: 1px 8px; background: #fff; box-shadow: var(--shadow-1); }
+.si-photo { aspect-ratio: 4 / 3; max-height: 200px; }
+.si-go { align-self: flex-start; margin-top: auto; padding: 8px 16px; font-size: 13px; }
+
+/* מסך אמינות: מסך אחד */
+.page-method .app-main { overflow: hidden; }
+.method-page { height: 100%; display: grid; grid-template-rows: auto minmax(0, 1fr) auto; gap: 10px; padding: clamp(12px, 2vh, 24px) clamp(16px, 2.4vw, 40px); }
+.method-page .page-head { margin: 0; }
+.method-page .page-title { font-size: clamp(22px, min(2.4vw, 4vh), 34px); margin: 2px 0; }
+.method-page .page-sub { font-size: 13.5px; }
+.method-page .method-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); min-height: 0; align-content: stretch; grid-auto-rows: minmax(0, 1fr); gap: 10px; overflow: auto; }
+.method-page .m-card { padding: 12px 14px; gap: 6px; }
+.method-page .m-list { font-size: 12.5px; gap: 3px; }
+.method-page .formula { font-size: 13px; padding: 5px 10px; }
+.method-page .big { font-size: clamp(34px, 3.4vw, 52px); }
+.method-page .m-howto { margin: 0; }
+.method-page .section-title { margin: 0 0 6px; }
+.method-page .steps li::before { font-size: 22px; }
+.method-page .steps li { font-size: 12.5px; }
+
+@media (max-width: 1100px) {
+  .sys-screen { grid-template-columns: minmax(150px, 180px) minmax(0, 1fr); }
+  .sys-info { grid-column: 1 / -1; border-right: 0; max-height: 38vh; }
+  .sys-screen { grid-template-rows: minmax(0, 1fr) auto; }
+  .method-page .method-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 760px) {
+  .page-home .app-main, .page-systems .app-main, .page-method .app-main { overflow: auto; display: block; }
+  .home-fit { height: auto; }
+  .home-fit .hero { grid-template-columns: minmax(0, 1fr); }
+  .method-strip { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .sys-screen { height: auto; grid-template-columns: minmax(0, 1fr); grid-template-rows: auto; }
+  .sys-nav { flex-direction: row; overflow-x: auto; border: 0; border-bottom: 1px solid var(--rule); padding: 8px; }
+  .sys-tab { flex: 0 0 auto; }
+  .sys-how { display: none; }
+  .sys-stage { grid-template-rows: auto auto auto; }
+  .stage-wrap { height: 52vh; overflow: hidden; }
+  .sys-info { border-right: 0; }
+  .sys-info { max-height: none; }
+  .method-page { height: auto; }
+  .method-page .method-grid { grid-template-columns: minmax(0, 1fr); overflow: visible; }
+}
