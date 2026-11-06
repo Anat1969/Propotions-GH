@@ -55,16 +55,33 @@ async function setup(page) {
     ok(await p.locator('.backdrop').count() === 1, 'רקע חי בדף הבית');
 
     // ניווט
-    for (const [name, h1part] of [['שיטות', 'יחס הזהב'], ['כתבה', 'מיתוס, מדידה'], ['אמינות', 'מכשיר שאומר'], ['בית', 'הקומפוזיציה נמדדת']]) {
+    for (const [name, h1part] of [['שיטות', 'יחס הזהב'], ['כתבות', 'מיתוס, מדידה'], ['אמינות', 'מכשיר שאומר'], ['בית', 'הקומפוזיציה נמדדת']]) {
       await p.locator('.tabs').getByRole('link', { name }).click();
       await p.waitForFunction((t) => document.querySelector('h1')?.textContent.includes(t), h1part, { timeout: 4000 }).catch(() => {});
-      ok((await p.locator('h1').innerText()).includes(h1part), `לשונית ${name}`);
+      ok((await p.locator('h1').last().innerText()).includes(h1part), `לשונית ${name}`);
       ok(await p.locator('.tabs [aria-current="page"]').innerText() === name, `לשונית ${name} מסומנת`);
     }
     await p.goto(BASE + '#/article', { waitUntil: 'networkidle' });
-    ok(await p.locator('.timeline li').count() === 7, 'כתבה: ציר זמן של 7 תחנות');
-    ok(await p.locator('.art-quote .q-tag').innerText() === 'תרגום', 'כתבה: ציטוט עם תרגום ומקור');
-    ok(await p.locator('.art-sources li').count() >= 6, 'כתבה: רשימת מקורות');
+    const R = '.art-read ';
+    ok(await p.locator('.art-item').count() === 4, 'כתבות: ארבע כתבות ברשימה');
+    ok(await p.locator(R + '.timeline li').count() === 6, 'כתבה 1: ציר זמן של 6 תחנות');
+    ok(await p.locator(R + '.art-quote .q-tag').innerText() === 'תרגום', 'כתבה 1: ציטוט עם תרגום ומקור');
+    ok(await p.locator(R + '.art-sources li').count() >= 6, 'כתבה 1: רשימת מקורות');
+    ok(await p.locator('.mini-box .art-sheet.mini').count() === 1, 'מפת העמוד המלא בצד');
+    const v0 = await p.locator('.mini-view').evaluate((e) => e.style.top);
+    await p.locator('.art-read').evaluate((e) => { e.style.scrollBehavior = 'auto'; e.scrollTop = 600; });
+    await p.waitForTimeout(300);
+    ok((await p.locator('.mini-view').evaluate((e) => e.style.top)) !== v0, 'גלילה מזיזה את המסגרת במפת העמוד');
+    const [dl] = await Promise.all([p.waitForEvent('download'), p.getByRole('button', { name: 'הורדה' }).click()]);
+    ok(dl.suggestedFilename().endsWith('.html'), 'הורדה: קובץ HTML של הכתבה');
+    ok(await p.getByRole('button', { name: 'הדפסה' }).isVisible(), 'כפתור הדפסה');
+    for (const [id, part] of [['time', 'עבר, הווה, עתיד'], ['science', 'מה המדע באמת יודע'], ['shortcode', 'הקוד הקצר']]) {
+      await p.locator('.art-item', { hasText: { time: 'עבר, הווה', science: 'מיחס לחוויה', shortcode: 'הקוד הקצר' }[id] }).click();
+      await p.waitForFunction((x) => document.querySelector('.art-read h1')?.textContent.includes(x), part, { timeout: 3000 }).catch(() => {});
+      ok((await p.locator(R + 'h1').innerText()).includes(part), `כתבה: ${part}`);
+    }
+    ok(await p.locator(R + '.sc-table tbody tr').count() === 4, 'הקוד הקצר: מדידה חיה על ארבע הדוגמאות');
+    ok((await p.locator(R + '.sc-table tbody tr').filter({ hasText: 'סנטה מריה' }).innerText()).includes('68'), 'הקוד הקצר: סנטה מריה נובלה 68');
     // מסך השיטות: שיטה, דוגמה, סרגלים על התמונה, השוואה
     await p.goto(BASE + '#/systems?m=palladio', { waitUntil: 'networkidle' });
     ok((await p.locator('.si-title').innerText()) === 'יחסי פלאדיו', 'שיטות: פלאדיו נבחר מהכתובת');
@@ -221,8 +238,8 @@ async function setup(page) {
       ok((await ph.locator('.stage-read').innerText()).includes('φ'), 'במה: אחרי כיוון, קריאה מול יחס הזהב');
       ok((await ph.locator('.ov-credit').textContent()).includes('CC BY-SA'), 'במה: קרדיט ורישיון לצילום');
       await ph.goto(BASE + '#/article', { waitUntil: 'networkidle' });
-      for (const el of await ph.locator('.article .photo').all()) { await el.scrollIntoViewIfNeeded(); await ph.waitForTimeout(250); }
-      ok(await ph.locator('.article .photo.is-ok').count() === 3, 'כתבה: הפרתנון, תוכנית פלאדיו ותבליט המודולור');
+      for (const el of await ph.locator('.art-read .photo').all()) { await el.scrollIntoViewIfNeeded(); await ph.waitForTimeout(250); }
+      ok(await ph.locator('.art-read .photo.is-ok').count() === 1, 'כתבה: צילום הפרתנון');
       await ph.goto(BASE + '#/systems?m=modulor', { waitUntil: 'networkidle' });
       await ph.waitForTimeout(400);
       ok(await ph.locator('.si-photo.is-ok').count() === 1, 'שיטות: תבליט המודולור בהסבר המודולור');

@@ -4,7 +4,7 @@ import Home from './pages/Home';
 import Measure from './pages/Measure';
 import Systems from './pages/Systems';
 import Method from './pages/Method';
-import Article from './pages/Article';
+import Articles from './pages/Articles';
 import { Backdrop } from './components/Visuals';
 import { go, href, useRoute, type Page } from './lib/route';
 import { blankStudy, findStudy, loadStudies, newId, saveStudies, type SaveState } from './lib/store';
@@ -15,7 +15,7 @@ const TABS: { id: Page; name: string }[] = [
   { id: 'home', name: 'בית' },
   { id: 'measure', name: 'מדידה' },
   { id: 'systems', name: 'שיטות' },
-  { id: 'article', name: 'כתבה' },
+  { id: 'article', name: 'כתבות' },
   { id: 'method', name: 'אמינות' },
 ];
 
@@ -92,7 +92,7 @@ export default function App() {
         )}
         {page === 'systems' && <Systems />}
         {page === 'method' && <Method />}
-        {page === 'article' && <Article />}
+        {page === 'article' && <Articles />}
       </main>
     </div>
   );

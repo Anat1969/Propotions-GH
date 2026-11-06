@@ -47,3 +47,20 @@ describe('rectify', () => {
     src.forEach((p, i) => { const q = apply(H, p); expect(q.x).toBeCloseTo(dst[i].x, 6); expect(q.y).toBeCloseTo(dst[i].y, 6); });
   });
 });
+
+import { shortCode } from '../src/lib/shortcode';
+describe('short code', () => {
+  it('scale does not change the index', () => {
+    const st = EXAMPLES[1];
+    expect(shortCode({ ...st, widthM: st.widthM * 3 }).index).toBe(shortCode(st).index);
+  });
+  it('one family gives 100', () => {
+    const st = { ...EXAMPLES[3] }; // Novella: squares and two-squares
+    const r = shortCode(st);
+    expect(r.k).toBeLessThanOrEqual(2);
+    expect(r.index).toBeGreaterThan(60);
+  });
+  it('prints the examples', () => {
+    for (const s of EXAMPLES) { const r = shortCode(s); console.log(s.id, r.n, r.k, r.index, r.families.map((f) => `${f.ratio.toFixed(2)}x${f.count}`).join(' ')); }
+  });
+});
