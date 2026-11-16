@@ -46,6 +46,7 @@ export default function Systems() {
           </a>
         ))}
         <p className="explain sys-how">בוחרים שיטה. הסרגל שלה מונח על הדוגמה. מדליקים סרגלים נוספים כדי להשוות.</p>
+        <a className="press sys-pz" href={href('pritzker')}><span className="label">מבחן על מבנים אמיתיים</span><b>5 זוכי פריצקר, מאפליקציית פרס נובל</b><span className="explain">רק אחד נבנה ביחס הזהב.</span></a>
       </nav>
 
       <section className="sys-stage">

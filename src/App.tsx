@@ -3,6 +3,7 @@ import AIMenu, { type MenuItem } from './components/AIMenu';
 import Home from './pages/Home';
 import Measure from './pages/Measure';
 import Systems from './pages/Systems';
+import Pritzker from './pages/Pritzker';
 import Method from './pages/Method';
 import Articles from './pages/Articles';
 import { Backdrop } from './components/Visuals';
@@ -15,6 +16,7 @@ const TABS: { id: Page; name: string }[] = [
   { id: 'home', name: 'בית' },
   { id: 'measure', name: 'מדידה' },
   { id: 'systems', name: 'שיטות' },
+  { id: 'pritzker', name: 'פריצקר' },
   { id: 'article', name: 'כתבות' },
   { id: 'method', name: 'אמינות' },
 ];
@@ -91,6 +93,7 @@ export default function App() {
           <Measure study={study} own={own} system={system} onSystem={(s) => go('measure', { st: study.id, s }, true)} onOpen={(id) => go('measure', { st: id, s: system })} onChange={upsert} />
         )}
         {page === 'systems' && <Systems />}
+        {page === 'pritzker' && <Pritzker />}
         {page === 'method' && <Method />}
         {page === 'article' && <Articles />}
       </main>

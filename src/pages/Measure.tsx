@@ -6,6 +6,7 @@ import { rectifyImage, type Pt } from '../lib/rectify';
 import { DeviationsPanel, IndexPanel, ReadingPanel, SystemsPanel } from '../components/Panels';
 import { measure, measureAll, type Study } from '../lib/engine';
 import { EXAMPLES } from '../lib/examples';
+import { PZ_STUDIES } from '../lib/pritzker';
 import { SYSTEMS, SYSTEM, type SystemId } from '../lib/systems';
 import { newId, readImage } from '../lib/store';
 import { askDetect } from '../lib/ai';
@@ -133,6 +134,7 @@ export default function Measure({ study, own, system, onSystem, onOpen, onChange
           <span className="label">מחקר</span>
           <select className="field tb-select" aria-label="בחירת מחקר" value={study.id} onChange={(e) => onOpen(e.target.value)}>
             <optgroup label="דוגמאות">{EXAMPLES.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}</optgroup>
+            <optgroup label="זוכי פריצקר">{PZ_STUDIES.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}</optgroup>
             {own.length > 0 && <optgroup label="המחקרים שלי">{own.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}</optgroup>}
           </select>
           <button className="press btn tb-primary" onClick={() => file.current?.click()}>העלאת תמונה</button>
@@ -188,7 +190,7 @@ export default function Measure({ study, own, system, onSystem, onOpen, onChange
             <span><i style={{ background: 'var(--near)' }} />קרוב עד {Math.round(SYSTEM[system].orange * 100)}%</span>
             <span><i style={{ background: 'var(--off)' }} />סוטה</span>
             {guides && <span><i className="dash" />חתך זהב 0.382 / 0.618</span>}
-            <span className="mute">{study.example ? 'סכמה להדגמה, לא מדידה של בניין קיים' : study.name}</span>
+            <span className="mute">{study.id.startsWith('pz-') ? 'מידות ממקורות שפורסמו, ממסך פריצקר' : study.example ? 'סכמה להדגמה, לא מדידה של בניין קיים' : study.name}</span>
           </figcaption>
         </figure>
         <aside className="col-dev">

@@ -82,6 +82,19 @@ async function setup(page) {
     }
     ok(await p.locator(R + '.sc-table tbody tr').count() === 4, 'הקוד הקצר: מדידה חיה על ארבע הדוגמאות');
     ok((await p.locator(R + '.sc-table tbody tr').filter({ hasText: 'סנטה מריה' }).innerText()).includes('68'), 'הקוד הקצר: סנטה מריה נובלה 68');
+    // מסך פריצקר: חמישה מבנים מאפליקציית פרס נובל, דירוג וציון
+    await p.goto(BASE + '#/pritzker', { waitUntil: 'networkidle' });
+    ok(await p.locator('.pz-row').count() === 5, 'פריצקר: חמישה מבנים מדורגים');
+    ok((await p.locator('.pz-row').first().innerText()).includes('פירמידת הלובר') && (await p.locator('.pz-big').innerText()) === '99', 'פריצקר: הפירמידה ראשונה, 99 לפי יחס הזהב');
+    ok((await p.locator('.pz-read a', { hasText: 'בפרס נובל' }).getAttribute('href')).includes('prasnovel-gh.vercel.app/#/pritzker?id=i-m-pei'), 'פריצקר: קישור חזרה לאפליקציית נובל');
+    await p.locator('.pz-row', { hasText: 'כנסיית האור' }).click();
+    await p.waitForFunction(() => location.hash.includes('id=tadao-ando'));
+    ok((await p.locator('.pz-big').innerText()) === '75' && (await p.locator('.pz-plan line').count()) === 2, 'פריצקר: כנסיית האור, שלוש קוביות ו-75 לפי פלאדיו');
+    await p.locator('.pz-read .btn').click();
+    await p.waitForFunction(() => location.hash.includes('st=pz-tadao-ando'));
+    ok((await p.locator('[data-testid=index]').innerText()).includes('75'), 'פריצקר: המדידה המלאה נפתחת עם אותו ציון');
+    await p.goto(BASE + '#/systems', { waitUntil: 'networkidle' });
+    ok(await p.locator('.sys-pz').isVisible(), 'שיטות: קישור למבחן על מבני פריצקר');
     // מסך השיטות: שיטה, דוגמה, סרגלים על התמונה, השוואה
     await p.goto(BASE + '#/systems?m=palladio', { waitUntil: 'networkidle' });
     ok((await p.locator('.si-title').innerText()) === 'יחסי פלאדיו', 'שיטות: פלאדיו נבחר מהכתובת');
@@ -259,7 +272,7 @@ async function setup(page) {
       const m = await b.newPage({ viewport: vp, reducedMotion: 'reduce' });
       m.on('pageerror', (e) => errors.push(e.message));
       await setup(m);
-      for (const h of ['', '#/measure?st=ex-residential&s=golden', '#/measure?st=ex-plan&s=palladio', '#/systems?m=modulor&ex=residential', '#/method', '#/article']) {
+      for (const h of ['', '#/measure?st=ex-residential&s=golden', '#/measure?st=ex-plan&s=palladio', '#/systems?m=modulor&ex=residential', '#/method', '#/article', '#/pritzker']) {
         await m.goto(BASE + h, { waitUntil: 'networkidle' });
         const hs = await m.evaluate(() => document.documentElement.scrollWidth > window.innerWidth);
         ok(!hs, `${vp.width}px ${h || 'בית'}: בלי גלילה אופקית`);

@@ -64,3 +64,13 @@ describe('short code', () => {
     for (const s of EXAMPLES) { const r = shortCode(s); console.log(s.id, r.n, r.k, r.index, r.families.map((f) => `${f.ratio.toFixed(2)}x${f.count}`).join(' ')); }
   });
 });
+
+import { PRITZKER } from '../src/lib/pritzker';
+describe('pritzker', () => {
+  const idx = (slug: string, s: 'golden' | 'palladio') => measure(PRITZKER.find((p) => p.slug === slug)!.study, s).index;
+  it('the Louvre pyramid is a golden triangle within 1%', () => { expect(idx('i-m-pei', 'golden')).toBeGreaterThanOrEqual(98); });
+  it('the Church of the Light is three squares', () => { expect(idx('tadao-ando', 'palladio')).toBe(75); expect(idx('tadao-ando', 'golden')).toBe(0); });
+  it('Sydney plan is a square and a half', () => { expect(idx('jorn-utzon', 'palladio')).toBeGreaterThanOrEqual(80); });
+  it('Pompidou is explained by no ratio system', () => { expect(Math.max(idx('renzo-piano', 'golden'), idx('renzo-piano', 'palladio'))).toBe(0); });
+  it('every case has a source line and a photo credit', () => { for (const p of PRITZKER) { expect(p.dims.length).toBeGreaterThan(10); expect(p.photo.lic).toBeTruthy(); } });
+});

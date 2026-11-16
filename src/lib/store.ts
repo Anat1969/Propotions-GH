@@ -1,6 +1,7 @@
 // שמירה אוטומטית ב-localStorage. מחקרים של המשתמש בלבד; הדוגמאות נטענות מהקוד.
 import type { Study } from './engine';
 import { EXAMPLES } from './examples';
+import { PZ_STUDIES } from './pritzker';
 
 const KEY = 'proportions.studies.v1';
 export type SaveState = 'idle' | 'saving' | 'saved' | 'error';
@@ -24,7 +25,7 @@ export function saveStudies(list: Study[]): boolean {
   }
 }
 
-export const findStudy = (id: string | undefined, own: Study[]) => own.find((s) => s.id === id) ?? EXAMPLES.find((s) => s.id === id) ?? EXAMPLES[1];
+export const findStudy = (id: string | undefined, own: Study[]) => own.find((s) => s.id === id) ?? EXAMPLES.find((s) => s.id === id) ?? PZ_STUDIES.find((s) => s.id === id) ?? EXAMPLES[1];
 
 export const newId = () => `st-${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;
 
